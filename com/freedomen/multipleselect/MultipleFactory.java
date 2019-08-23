@@ -1,6 +1,7 @@
 package com.freedomen.multipleselect;
 
 import java.beans.PropertyDescriptor;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,9 +13,10 @@ import java.util.Map;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.springframework.beans.BeanUtils;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
- 
+import com.baomidou.mybatisplus.annotations.TableId;
+import com.baomidou.mybatisplus.annotations.TableLogic;
+import com.baomidou.mybatisplus.annotations.TableName;
+
 
 public class MultipleFactory { 
 	
@@ -257,7 +259,15 @@ public class MultipleFactory {
 		return null;
 		
 	}
-		
+	//get table logic column name  by  entity annotation
+	public static String getTableLogic(Object entity) {
+		 for (Field filed: entity.getClass().getDeclaredFields()) { 
+			 if (filed.isAnnotationPresent(TableLogic.class))
+				 return MultipleFactory.getTableColumn(filed.getName());
+			 
+		 }
+		 return null;
+	}	
 	//all of entity columns convert to table columns
 	private static List<String> entityColumnsToTableColumns(List<String> columns) {
 		
@@ -269,8 +279,7 @@ public class MultipleFactory {
 		
 		return tableColumns;
 		
-	}
-	
+	} 
 	//get all columns by entity
 	private static List<String> getAllEntityColumns(Object entity) {
 		

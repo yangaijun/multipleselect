@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap; 
 import java.util.List;
-import java.util.Map; 
+import java.util.Map;
 
 public class MultipleSelect {
 	
@@ -106,6 +106,17 @@ public class MultipleSelect {
 					sb.append(" ").append(segment);
 				}
 			} 
+			for (TableEntity te : this.tes) {
+				String logic = MultipleFactory.getTableLogic(te);
+				if (logic != null)
+					sb.append(" AND ")
+					  .append(te.getNickName())
+					  .append(".")
+					  .append(logic)
+					  .append(" = ")
+					  .append("0");
+			}
+			sqlSegment = sb.toString();
 			sqlSegment = sb.toString();
 		}
 	}

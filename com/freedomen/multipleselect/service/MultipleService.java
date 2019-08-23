@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
+
 import org.springframework.stereotype.Service;
 
 import com.freedomen.multipleselect.MultipleResult;
 import com.freedomen.multipleselect.MultipleSelect;
 import com.freedomen.multipleselect.mapper.MultipleMapper; 
  
-@Services
+@Service
 public class MultipleService {
 	@Resource
 	private MultipleMapper mapper;
