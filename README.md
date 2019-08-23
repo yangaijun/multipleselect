@@ -75,7 +75,7 @@ MultipleSelect.newInstance("${1}.userName,${1}.userPhone,${2}", new Orders(), ne
 
 ```java
 //实例好 查找实体后可以操作实体
-//操作符： eq: =
+//注意： 如何实体内属性有值  将会以 eq方式and连接做为where 条件
 MultipleSelect multipleSelect = MultipleSelect.newInstance("${1}.userName,${1}.userPhone,${2}", new Orders(), new User(), new Address());
 
 multipleSelect
