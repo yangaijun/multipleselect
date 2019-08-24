@@ -38,8 +38,10 @@ public class WhereCustomSegment {
 			(new Exception("no column " + column + " be found in table " + tableEntity.getNickName())).printStackTrace();
 			return null;
 		}
+		
 		try {
-			if (segmentSql.get(segmentSql.size() - 1).indexOf("(") == -1)
+			if (segmentSql.get(segmentSql.size() - 1).indexOf("(") == -1 
+					|| (segmentSql.get(segmentSql.size() - 1).indexOf("(") != -1 && segmentSql.get(segmentSql.size() - 1).indexOf(")") != -1))
 				sb.append(currentOpreatioalType);
 		} catch (Exception e) {
 			sb.append(currentOpreatioalType);
@@ -101,7 +103,8 @@ public class WhereCustomSegment {
 	private Integer lastDivisionType() {
 		int  i = segmentSql.size() - 1;
 		for ( ; i >= 0; i --) {
-			if (segmentSql.get(i).indexOf("(") != -1) {
+			//has left '(' no  ')' 
+			if (segmentSql.get(i).indexOf("(") != -1 && segmentSql.get(i).indexOf(")") == -1) {
 				return leftDivision;
 			}
 		} 
@@ -210,6 +213,8 @@ public class WhereCustomSegment {
 		}
 		//delete spare character ','
 		sb.deleteCharAt(sb.length() - 1);  
+		
+		sb.append(")");
 	}
 	
 	

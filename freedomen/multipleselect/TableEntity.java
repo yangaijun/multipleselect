@@ -9,6 +9,7 @@ public class TableEntity {
 	private List<String> allTableColumns;
 	private List<String> allEntityColumns;
 	private Object entity;
+	private String logicDelete;
 	
 	public Object getEntity() {
 		return entity;
@@ -63,6 +64,14 @@ public class TableEntity {
 		
 		return sb.toString();
 		
+	}
+
+	public String getLogicDelete() {
+		return logicDelete;
+	}
+
+	public void setLogicDelete(String logicDelete) {
+		this.logicDelete = logicDelete;
 	}
 	
 }

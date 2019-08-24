@@ -1,10 +1,15 @@
 package com.freedomen.multipleselect;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap; 
 import java.util.List;
 import java.util.Map;
+
+import com.yaj.hyj.business.user.entity.po.UserPO;
+import com.yaj.hyj.business.useraddress.entity.po.UserAddressPO;
 
 public class MultipleSelect {
 	
@@ -106,8 +111,9 @@ public class MultipleSelect {
 					sb.append(" ").append(segment);
 				}
 			} 
+			
 			for (TableEntity te : this.tes) {
-				String logic = MultipleFactory.getTableLogic(te);
+				String logic = te.getLogicDelete();
 				if (logic != null)
 					sb.append(" AND ")
 					  .append(te.getNickName())
@@ -116,8 +122,7 @@ public class MultipleSelect {
 					  .append(" = ")
 					  .append("0");
 			}
-			sqlSegment = sb.toString();
-			sqlSegment = sb.toString();
+			sqlSegment = sb.toString(); 
 		}
 	}
 
@@ -199,10 +204,25 @@ public class MultipleSelect {
 		if (pageSize == null || pageSize == 0 || pageNo == null) {
 			start = null; end = null;
 		} else {
-			start = pageNo * pageSize;
+			start = (pageNo - 1)* pageSize;
 			end = pageSize;
 		}
 			
 	} 
-	 
+	
+	
+	public static void main(String[] args) {
+		MultipleSelect ms = MultipleSelect.newInstance("${1}", new UserPO(), new UserAddressPO());
+			ms.where("${1}")
+				.in("userAddressId", Arrays.asList(1, 2, 3))
+				.like("userAddressRegion", "123456")
+				.between("createTime", new Date(), 45)
+				.division()
+				.eq("userAddressName", "cmad")
+				.or()
+				.ge("userAddressMaster", 0);
+			ms.getSqlSegment();
+			System.out.println(ms.getSqlSegment());
+				
+	}
 }

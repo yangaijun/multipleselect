@@ -28,6 +28,7 @@ public class MultipleFactory {
 		int k = 0; 
 		for (Object o : entities) { 
 			TableEntity te = new TableEntity();
+				te.setLogicDelete(getTableLogic(o));
 				te.setEntity(o);
 				te.setTableName(getTableName(o));
 				te.setAllEntityColumns(getAllEntityColumns(o));
