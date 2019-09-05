@@ -85,9 +85,9 @@ public class MultipleSelect {
 	}
 	//TODO
 	//get table,nick, column name by custom grammar ${0}.columnName
-	private void getTNCname(String batch) {
-		this.join.add("question.question_id = answer.question_id");
+	private void getTNCname(String batch) { 
 	}
+	
 	public String getSqlSegment() {
 		//reject myBatis visit three times
 		if (addCustomFlag) {
@@ -214,7 +214,6 @@ public class MultipleSelect {
 	public static void main(String[] args) {
 		
 		
-//		System.out.println(MultipleFactory.getTableField(new UserPO()));
 //		MultipleSelect ms = MultipleSelect.newInstance("${1}", new UserPO(), new UserAddressPO());
 //			ms.where("${1}")
 //				.in("userAddressId", Arrays.asList(1, 2, 3))

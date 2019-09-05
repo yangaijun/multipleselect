@@ -28,13 +28,15 @@ public class MultipleFactory {
 		TableEntity[] tes = new TableEntity[entities.size()];
 		int k = 0; 
 		for (Object o : entities) { 
+			//Property name is inconsistent with database field name, filter
+			Map<String, String> filter = new HashMap<>();
 			TableEntity te = new TableEntity();
 				te.setLogicDelete(getTableLogic(o)); 
-				te.setNotExsit(getTableField(o));
+				te.setNotExsit(getTableField(o, filter));
 				te.setEntity(o);
 				te.setTableName(getTableName(o));
 				te.setAllEntityColumns(getAllEntityColumns(o));
-				te.setAllTableColumns(entityColumnsToTableColumns(te.getAllEntityColumns()));
+				te.setAllTableColumns(entityColumnsToTableColumns(te.getAllEntityColumns(), filter));
 			tes[k ++] = te;
 		}
 		
@@ -76,7 +78,6 @@ public class MultipleFactory {
 			join.add(sb.toString());
 		}
 		mulSelect.setJoin(join);
-		
 		
 		//create sqlSegment
 		StringBuilder sb = new StringBuilder();
@@ -248,14 +249,17 @@ public class MultipleFactory {
 		}
 		return null;
 	}
-	//get entity has @TableField annotation field name
-	public static List<String> getTableField(Object entity) {
+	//get entity has @TableField annotation field name 
+	public static List<String> getTableField(Object entity, Map<String, String> filter) {
 		List<String> names = new ArrayList<>();
 		Field[] fields = entity.getClass().getDeclaredFields(); 
 		for (Field field : fields) {
 			if (field.isAnnotationPresent(TableField.class)) {
 				if (field.getAnnotation(TableField.class).exist() == false) {
 					names.add(field.getName());
+				}
+				if (!field.getAnnotation(TableField.class).value().equals("")) {
+					filter.put(field.getName(), field.getAnnotation(TableField.class).value());
 				}
 			}
 		}
@@ -277,22 +281,26 @@ public class MultipleFactory {
 		return null;
 		
 	}
+	
 	//get table logic column name  by  entity annotation
 	public static String getTableLogic(Object entity) {
 		 for (Field filed: entity.getClass().getDeclaredFields()) { 
 			 if (filed.isAnnotationPresent(TableLogic.class))
 				 return MultipleFactory.getTableColumn(filed.getName());
-			 
 		 }
 		 return null;
 	}	
 	//all of entity columns convert to table columns
-	private static List<String> entityColumnsToTableColumns(List<String> columns) {
+	private static List<String> entityColumnsToTableColumns(List<String> columns, Map<String, String> filter) {
 		
 		List<String> tableColumns = new ArrayList<>();
 		
 		columns.forEach(i -> {
-			tableColumns.add(getTableColumn(i));
+			if (filter.get(i) != null) {
+				tableColumns.add(filter.get(i));
+			} else {
+				tableColumns.add(getTableColumn(i));
+			}
 		});
 		
 		return tableColumns;
