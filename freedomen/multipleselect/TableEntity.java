@@ -10,6 +10,7 @@ public class TableEntity {
 	private List<String> allEntityColumns;
 	private Object entity;
 	private String logicDelete;
+	private List<String> notExsit;
 	
 	public Object getEntity() {
 		return entity;
@@ -52,15 +53,16 @@ public class TableEntity {
 		StringBuilder sb = new StringBuilder();
 		
 		for (int i = 0; i < allTableColumns.size(); i ++) {
-			sb.append(this.nickName) 
-			  .append('.') 
-			  .append(allTableColumns.get(i))
-			  .append(' ') 
-			  .append(allEntityColumns.get(i));
-			
-			if (i + 1 != allTableColumns.size())
-				sb.append(',');
+			if (!this.getNotExsit().contains(allEntityColumns.get(i))) { 
+				sb.append(this.nickName) 
+				  .append('.') 
+				  .append(allTableColumns.get(i))
+				  .append(' ') 
+				  .append(allEntityColumns.get(i))
+				  .append(",");
+			} 
 		}
+		sb.deleteCharAt(sb.length() - 1);
 		
 		return sb.toString();
 		
@@ -72,6 +74,14 @@ public class TableEntity {
 
 	public void setLogicDelete(String logicDelete) {
 		this.logicDelete = logicDelete;
+	}
+
+	public List<String> getNotExsit() {
+		return notExsit;
+	}
+
+	public void setNotExsit(List<String> notExsit) {
+		this.notExsit = notExsit;
 	}
 	
 }

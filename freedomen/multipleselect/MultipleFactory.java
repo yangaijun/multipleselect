@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.beanutils.PropertyUtilsBean;
 import org.springframework.beans.BeanUtils;
 
+import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableLogic;
 import com.baomidou.mybatisplus.annotations.TableName;
@@ -28,7 +29,8 @@ public class MultipleFactory {
 		int k = 0; 
 		for (Object o : entities) { 
 			TableEntity te = new TableEntity();
-				te.setLogicDelete(getTableLogic(o));
+				te.setLogicDelete(getTableLogic(o)); 
+				te.setNotExsit(getTableField(o));
 				te.setEntity(o);
 				te.setTableName(getTableName(o));
 				te.setAllEntityColumns(getAllEntityColumns(o));
@@ -170,8 +172,7 @@ public class MultipleFactory {
 	}
 	
 	private static String getOtherAllColumnName(String string, TableEntity[] tes) {
- 
-		StringBuffer sb = new StringBuffer();
+
 		TableEntity te = null;
 		try {
 			int tableIndex = Integer.parseInt(string);
@@ -191,16 +192,20 @@ public class MultipleFactory {
 			}
 			
 		}
-		for (int i = 0; i < te.getAllEntityColumns().size(); i ++) {
-			sb.append(te.getNickName())
-			  .append(".")
-			  .append(te.getAllTableColumns().get(i))
-			  .append(" ")
-			  .append(te.getAllEntityColumns().get(i))
-			  .append(",");
-		}
-		sb.deleteCharAt(sb.length() - 1);
-		return sb.toString();
+		
+//		for (int i = 0; i < te.getAllEntityColumns().size(); i ++) {
+//			//数据库并不存在此字段
+//			if (!te.getNotExsit().contains(te.getAllEntityColumns().get(i))) { 
+//				sb.append(te.getNickName())
+//				  .append(".")
+//				  .append(te.getAllTableColumns().get(i))
+//				  .append(" ")
+//				  .append(te.getAllEntityColumns().get(i))
+//				  .append(",");
+//			} 
+//		}
+//		sb.deleteCharAt(sb.length() - 1);
+		return te.getSelectSegment();
 	}
 
 	//strip injection
@@ -243,7 +248,19 @@ public class MultipleFactory {
 		}
 		return null;
 	}
-
+	//get entity has @TableField annotation field name
+	public static List<String> getTableField(Object entity) {
+		List<String> names = new ArrayList<>();
+		Field[] fields = entity.getClass().getDeclaredFields(); 
+		for (Field field : fields) {
+			if (field.isAnnotationPresent(TableField.class)) {
+				if (field.getAnnotation(TableField.class).exist() == false) {
+					names.add(field.getName());
+				}
+			}
+		}
+		return names;
+	}
 	//entity column to table column
 	public static String getTableColumn(String attribute) { 
 		

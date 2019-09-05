@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.HashMap; 
 import java.util.List;
 import java.util.Map;
-
+ 
 import com.yaj.hyj.business.user.entity.po.UserPO;
 import com.yaj.hyj.business.useraddress.entity.po.UserAddressPO;
 
@@ -201,10 +201,10 @@ public class MultipleSelect {
  
 	public void setPage(Integer pageNo, Integer pageSize) {
 		
-		if (pageSize == null || pageSize == 0 || pageNo == null) {
+		if (pageSize == null || pageSize <= 0 || pageNo == null || pageNo <= 0) {
 			start = null; end = null;
 		} else {
-			start = (pageNo - 1)* pageSize;
+			start = (pageNo - 1) * pageSize;
 			end = pageSize;
 		}
 			
@@ -212,17 +212,20 @@ public class MultipleSelect {
 	
 	
 	public static void main(String[] args) {
-		MultipleSelect ms = MultipleSelect.newInstance("${1}", new UserPO(), new UserAddressPO());
-			ms.where("${1}")
-				.in("userAddressId", Arrays.asList(1, 2, 3))
-				.like("userAddressRegion", "123456")
-				.between("createTime", new Date(), 45)
-				.division()
-				.eq("userAddressName", "cmad")
-				.or()
-				.ge("userAddressMaster", 0);
-			ms.getSqlSegment();
-			System.out.println(ms.getSqlSegment());
+		
+		
+//		System.out.println(MultipleFactory.getTableField(new UserPO()));
+//		MultipleSelect ms = MultipleSelect.newInstance("${1}", new UserPO(), new UserAddressPO());
+//			ms.where("${1}")
+//				.in("userAddressId", Arrays.asList(1, 2, 3))
+//				.like("userAddressRegion", "123456")
+//				.between("createTime", new Date(), 45)
+//				.division()
+//				.eq("userAddressName", "cmad")
+//				.or()
+//				.ge("userAddressMaster", 0);
+//			ms.getSqlSegment();
+//			System.out.println(ms.getColumns());
 				
 	}
 }

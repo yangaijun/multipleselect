@@ -28,7 +28,7 @@
        		order by ${orderBy}
        </if>
        <if test="start != null and end != null">
-           limit #{start},#{end}
+           limit #{start}, #{end}
        </if>
     </select>
 </mapper>
