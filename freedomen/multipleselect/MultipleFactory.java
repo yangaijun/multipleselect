@@ -21,7 +21,7 @@ import com.baomidou.mybatisplus.annotations.TableName;
 
 public class MultipleFactory { 
 	
-	private static MultipleSelect make(String otherColumns,Collection<?> entities) {
+	private static MultipleSelect make(String otherColumns, Collection<?> entities) {
 
 		MultipleSelect mulSelect = new MultipleSelect(); 
 		//create tableEntity
@@ -33,6 +33,7 @@ public class MultipleFactory {
 			TableEntity te = new TableEntity();
 				te.setLogicDelete(getTableLogic(o)); 
 				te.setNotExsit(getTableField(o, filter));
+				te.setFilter(filter);
 				te.setEntity(o);
 				te.setTableName(getTableName(o));
 				te.setAllEntityColumns(getAllEntityColumns(o));
@@ -69,11 +70,11 @@ public class MultipleFactory {
 			  .append(" on ")
 			  .append(te.getNickName())
 			  .append(".")
-			  .append(map.get("column"))
+			  .append(map.get("column_left"))
 			  .append(" = ") 
 			  .append(map.get("table"))
 			  .append(".")
-			  .append(map.get("column"));
+			  .append(map.get("column_right"));
 			
 			join.add(sb.toString());
 		}
@@ -85,26 +86,26 @@ public class MultipleFactory {
 		Map<String, Object> parameter = new HashMap<>();
 		for (TableEntity te : tes) {
 			for (int i = 0; i < te.getAllEntityColumns().size(); i ++) {
-				Object value;
-				try {
-					value = propertyUtilsBean.getProperty(te.getEntity(), te.getAllEntityColumns().get(i));
-					if (value != null) {
-						String parameterName = "entity_" + te.getNickName() + "_" + te.getAllEntityColumns().get(i);
-						sb.append(" and ")
-						  .append(te.getNickName())
-						  .append(".")
-						  .append(te.getAllTableColumns().get(i))
-						  .append(" = ")
-						  .append(getStringValueByObject(parameterName, value, parameter));
-					}
-				} catch (Exception e) {
-					e.printStackTrace();
-				} 
-				
+				if (!te.getNotExsit().contains(te.getAllEntityColumns().get(i))) {
+					Object value;
+					try {
+						value = propertyUtilsBean.getProperty(te.getEntity(), te.getAllEntityColumns().get(i));
+						if (value != null) {
+							String parameterName = "entity_" + te.getNickName() + "_" + te.getAllEntityColumns().get(i);
+							sb.append(" and ")
+							  .append(te.getNickName())
+							  .append(".")
+							  .append(te.getAllTableColumns().get(i))
+							  .append(" = ")
+							  .append(getStringValueByObject(parameterName, value, parameter));
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					} 
+				}
 			}
 		} 
 		mulSelect.addParameter(parameter);
-		
 		
 		//strip sql injection
 		String sql = sb.toString();
@@ -120,7 +121,6 @@ public class MultipleFactory {
 	//otherColumns such as "${1}.createTime,${jobinfo}.createTime,${job_info}.jobInfoId"
 	public static MultipleSelect makeSelect(String otherColumns,Object ...entities) {
 		return make(otherColumns, Arrays.asList(entities));
-		
 	}
 	
 	//get table nick name addition '.' and table column by entity column 'tempColumn'
@@ -192,20 +192,7 @@ public class MultipleFactory {
 				}
 			}
 			
-		}
-		
-//		for (int i = 0; i < te.getAllEntityColumns().size(); i ++) {
-//			//数据库并不存在此字段
-//			if (!te.getNotExsit().contains(te.getAllEntityColumns().get(i))) { 
-//				sb.append(te.getNickName())
-//				  .append(".")
-//				  .append(te.getAllTableColumns().get(i))
-//				  .append(" ")
-//				  .append(te.getAllEntityColumns().get(i))
-//				  .append(",");
-//			} 
-//		}
-//		sb.deleteCharAt(sb.length() - 1);
+		} 
 		return te.getSelectSegment();
 	}
 
@@ -222,16 +209,31 @@ public class MultipleFactory {
 	private static Map<String, String> findSameColumn(TableEntity entity, TableEntity[] tes, int i) {
 		Map<String, String> map = new HashMap<>();
 		String tryId = getIdAnnotation(entity.getEntity().getClass());
+		
+		String columnLeft = entity.getFilter().get(tryId);
+		if (columnLeft == null) {
+			columnLeft = getTableColumn(tryId);
+		}
+		map.put("column_left", columnLeft); 
+		
 		if (tryId != null) 
 			for (int j = 0; j < i; j ++) {
 				String curId = getIdAnnotation(tes[j].getEntity().getClass());
 				if (curId == null) return null;
 				if (tes[j].getAllEntityColumns().contains(tryId)) {
-					map.put("column", getTableColumn(tryId));
+					String columnRight = tes[j].getFilter().get(tryId);
+					if (columnRight == null)
+						columnRight = getTableColumn(tryId); 
+					
+					map.put("column_right", columnRight);
 					map.put("table", tes[j].getNickName());
 					return map;
 				} else if (entity.getAllEntityColumns().contains(curId)) {
-					map.put("column", getTableColumn(curId));
+					String columnRight = tes[j].getFilter().get(curId);
+					if (columnRight == null)
+						columnRight = getTableColumn(curId);
+					
+					map.put("column_right", columnRight);
 					map.put("table", tes[j].getNickName());
 					return map;
 				}
@@ -258,7 +260,7 @@ public class MultipleFactory {
 				if (field.getAnnotation(TableField.class).exist() == false) {
 					names.add(field.getName());
 				}
-				if (!field.getAnnotation(TableField.class).value().equals("")) {
+				if (!field.getAnnotation(TableField.class).value().equals("")) { 
 					filter.put(field.getName(), field.getAnnotation(TableField.class).value());
 				}
 			}
@@ -318,7 +320,5 @@ public class MultipleFactory {
 		}
 		
 		return names;
-		
 	}
-
 }

@@ -1,6 +1,7 @@
 package com.freedomen.multipleselect;
 
 import java.util.List;
+import java.util.Map;
 
 public class TableEntity {
 	 
@@ -11,7 +12,7 @@ public class TableEntity {
 	private Object entity;
 	private String logicDelete;
 	private List<String> notExsit;
-	
+	private Map<String, String> filter;
 	public Object getEntity() {
 		return entity;
 	}
@@ -82,6 +83,14 @@ public class TableEntity {
 
 	public void setNotExsit(List<String> notExsit) {
 		this.notExsit = notExsit;
+	}
+
+	public Map<String, String> getFilter() {
+		return filter;
+	}
+
+	public void setFilter(Map<String, String> filter) {
+		this.filter = filter;
 	}
 	
 }

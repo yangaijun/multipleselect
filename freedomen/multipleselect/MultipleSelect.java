@@ -7,7 +7,8 @@ import java.util.Date;
 import java.util.HashMap; 
 import java.util.List;
 import java.util.Map;
- 
+
+import com.yaj.hyj.business.orders.entity.po.OrdersPO;
 import com.yaj.hyj.business.user.entity.po.UserPO;
 import com.yaj.hyj.business.useraddress.entity.po.UserAddressPO;
 
@@ -39,6 +40,7 @@ public class MultipleSelect {
 	public static MultipleSelect newInstance(String otherColumns, Collection<?> entities) {
 		return  MultipleFactory.makeSelect(otherColumns, entities);
 	}
+	
 	public static MultipleSelect newInstance(String otherColumns, Object ...entities) {
 		return  MultipleFactory.makeSelect(otherColumns, entities);
 	}
@@ -46,24 +48,30 @@ public class MultipleSelect {
 	public Map<String, Object> getParameter() {
 		return parameter;
 	}
+	
 	public void setParameter(Map<String, Object> parameter) {
 		this.parameter = parameter;
 	}
+	
 	public void addParameter(Map<String, Object> parameter) {
 		if (this.parameter == null) {
 			this.parameter = new HashMap<>();
 		}
 		this.parameter.putAll(parameter);
 	}
+	
 	public String getColumns() {
 		return columns;
 	}
+	
 	public void setColumns(String columns) {
 		this.columns = columns;
 	}
+	
 	public String getMasterTable() {
 		return masterTable;
 	}
+	
 	public void setMasterTable(String masterTable) {
 		this.masterTable = masterTable;
 	} 
@@ -71,16 +79,23 @@ public class MultipleSelect {
 	public List<String> getJoin() {
 		return join;
 	}
+	
 	public void setJoin(List<String> join) {
 		this.join = join;
 	}
+	
 	public MultipleSelect clearJoin() {
 		this.join.clear();
 		return this;
 	}
 	//TODO left : ${0}.companyId, right : ${3}.companyId
 	public MultipleSelect addJoin(String left, String right) {
-		getTNCname(left);
+		StringBuilder sb = new StringBuilder();   
+		String left$2 = MultipleFactory.getOtherColumnName(left, tes);
+		String right$2 = MultipleFactory.getOtherColumnName(right, tes);
+		 
+		System.out.println(left$2);
+		System.out.println(right$2);
 		return this;
 	}
 	//TODO
@@ -96,9 +111,11 @@ public class MultipleSelect {
 		}
 		return sqlSegment;
 	}
+	
 	public void setSqlSegment(String sqlSegment) {
 		this.sqlSegment = sqlSegment;
 	}
+	
 	private void setCustomWhere() {
 		
 		if (whereCustomSegments != null) {
@@ -141,7 +158,7 @@ public class MultipleSelect {
 				if (t$2.length == 2) {
 					sb.append(" ").append(t$2[1]);
 				}
-				sb.append(",");
+				sb.append(", ");
 			}
 		}
 		//delete last character ','
@@ -150,12 +167,15 @@ public class MultipleSelect {
 		
 		this.orderBy = sb.toString(); 
 	}
+	
 	public TableEntity[] getTes() {
 		return tes;
 	}
+	
 	public void setTes(TableEntity[] tes) {
 		this.tes = tes;
 	}
+	
 	public WhereCustomSegment where(String table) {
 		
 		String tableDeputyName = table.replaceAll("\\$\\{|}", "");
@@ -210,12 +230,12 @@ public class MultipleSelect {
 			
 	} 
 	
-	
 	public static void main(String[] args) {
 		
-		
-//		MultipleSelect ms = MultipleSelect.newInstance("${1}", new UserPO(), new UserAddressPO());
-//			ms.where("${1}")
+//		MultipleSelect ms = MultipleSelect.newInstance("${1},${2}", new OrdersPO(), new UserPO(), new UserAddressPO());
+// 
+//
+//			ms.where("${2}")
 //				.in("userAddressId", Arrays.asList(1, 2, 3))
 //				.like("userAddressRegion", "123456")
 //				.between("createTime", new Date(), 45)
@@ -224,7 +244,9 @@ public class MultipleSelect {
 //				.or()
 //				.ge("userAddressMaster", 0);
 //			ms.getSqlSegment();
-//			System.out.println(ms.getColumns());
+//			
+//		System.out.println(ms.getJoin());
+//		System.out.println(ms.getColumns());
 				
 	}
 }
