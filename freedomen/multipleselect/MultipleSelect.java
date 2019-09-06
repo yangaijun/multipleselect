@@ -40,50 +40,39 @@ public class MultipleSelect {
 	public static MultipleSelect newInstance(String otherColumns, Collection<?> entities) {
 		return  MultipleFactory.makeSelect(otherColumns, entities);
 	}
-	
 	public static MultipleSelect newInstance(String otherColumns, Object ...entities) {
 		return  MultipleFactory.makeSelect(otherColumns, entities);
 	}
-	
 	public Map<String, Object> getParameter() {
 		return parameter;
 	}
-	
 	public void setParameter(Map<String, Object> parameter) {
 		this.parameter = parameter;
 	}
-	
 	public void addParameter(Map<String, Object> parameter) {
 		if (this.parameter == null) {
 			this.parameter = new HashMap<>();
 		}
 		this.parameter.putAll(parameter);
 	}
-	
 	public String getColumns() {
 		return columns;
 	}
-	
 	public void setColumns(String columns) {
 		this.columns = columns;
 	}
-	
 	public String getMasterTable() {
 		return masterTable;
 	}
-	
 	public void setMasterTable(String masterTable) {
 		this.masterTable = masterTable;
 	} 
-	
 	public List<String> getJoin() {
 		return join;
 	}
-	
 	public void setJoin(List<String> join) {
 		this.join = join;
 	}
-	
 	public MultipleSelect clearJoin() {
 		this.join.clear();
 		return this;
@@ -102,7 +91,6 @@ public class MultipleSelect {
 	//get table,nick, column name by custom grammar ${0}.columnName
 	private void getTNCname(String batch) { 
 	}
-	
 	public String getSqlSegment() {
 		//reject myBatis visit three times
 		if (addCustomFlag) {
@@ -111,11 +99,9 @@ public class MultipleSelect {
 		}
 		return sqlSegment;
 	}
-	
 	public void setSqlSegment(String sqlSegment) {
 		this.sqlSegment = sqlSegment;
 	}
-	
 	private void setCustomWhere() {
 		
 		if (whereCustomSegments != null) {
@@ -142,7 +128,6 @@ public class MultipleSelect {
 			sqlSegment = sb.toString(); 
 		}
 	}
-
 	public String getOrderBy() {
 		return orderBy;
 	}
@@ -167,15 +152,12 @@ public class MultipleSelect {
 		
 		this.orderBy = sb.toString(); 
 	}
-	
 	public TableEntity[] getTes() {
 		return tes;
 	}
-	
 	public void setTes(TableEntity[] tes) {
 		this.tes = tes;
 	}
-	
 	public WhereCustomSegment where(String table) {
 		
 		String tableDeputyName = table.replaceAll("\\$\\{|}", "");
@@ -210,15 +192,12 @@ public class MultipleSelect {
 		return whereCustomSegment; 
 				
 	}
-	 
 	public Integer getStart() {
 		return start;
 	}
- 
 	public Integer getEnd() {
 		return end;
 	}
- 
 	public void setPage(Integer pageNo, Integer pageSize) {
 		
 		if (pageSize == null || pageSize <= 0 || pageNo == null || pageNo <= 0) {
@@ -229,24 +208,21 @@ public class MultipleSelect {
 		}
 			
 	} 
-	
 	public static void main(String[] args) {
 		
-//		MultipleSelect ms = MultipleSelect.newInstance("${1},${2}", new OrdersPO(), new UserPO(), new UserAddressPO());
-// 
-//
-//			ms.where("${2}")
-//				.in("userAddressId", Arrays.asList(1, 2, 3))
-//				.like("userAddressRegion", "123456")
-//				.between("createTime", new Date(), 45)
-//				.division()
-//				.eq("userAddressName", "cmad")
-//				.or()
-//				.ge("userAddressMaster", 0);
-//			ms.getSqlSegment();
-//			
-//		System.out.println(ms.getJoin());
-//		System.out.println(ms.getColumns());
+		MultipleSelect ms = MultipleSelect.newInstance("${1}", new UserPO(), new UserAddressPO());
+			ms.where("${1}")
+				.in("userAddressId", Arrays.asList(1, 2, 3))
+				.like("userAddressRegion", "123456")
+				.between("createTime", new Date(), 45)
+				.division()
+				.eq("userAddressName", "cmad")
+				.or()
+				.ge("userAddressMaster", 0);
+			ms.getSqlSegment();
+			
+		System.out.println(ms.getJoin());
+		System.out.println(ms.getColumns());
 				
 	}
 }

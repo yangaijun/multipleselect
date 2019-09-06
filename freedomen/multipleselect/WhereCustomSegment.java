@@ -30,7 +30,6 @@ public class WhereCustomSegment {
 		parameter = new HashMap<>();
 		parameterPrefixName = "custom_" + tableEntity.getNickName() + "_";
 	}
-	
 	//create same segment [tableName].[tableCoumn] as: 'and table1.table_column1',if no column be found,return null;
 	private StringBuffer getPublicSegment(String column) {
 		StringBuffer sb = new StringBuffer();
@@ -46,6 +45,7 @@ public class WhereCustomSegment {
 		} catch (Exception e) {
 			sb.append(currentOpreatioalType);
 		}
+		
 		sb.append(" ")
 		  .append(tableEntity.getNickName()).append(".")
 		  .append(tableEntity.getAllTableColumns().get(tableEntity.getAllEntityColumns().indexOf(column)))
@@ -68,24 +68,20 @@ public class WhereCustomSegment {
 			}
 		}  
 	}
-	
 	public WhereCustomSegment like(boolean ifNeed, String column, String value) {
 		this.setSimpleOpreation(ifNeed, column, value + "%", "LIKE");
 		return this;
 	}
-	
 	public WhereCustomSegment or() {
 		if (!this.currentOpreatioalType.equals("OR"))
 			this.currentOpreatioalType = "OR";
 		return this;
 	}
-	
 	public WhereCustomSegment and() {
 		if (!this.currentOpreatioalType.equals("AND"))
 			this.currentOpreatioalType = "AND";
 		return this;
 	}
-	
 	public WhereCustomSegment between(boolean ifNeed, String column, Object left, Object right) {
 		if (ifNeed) {
 			StringBuffer sb = getPublicSegment(column); 
@@ -99,7 +95,6 @@ public class WhereCustomSegment {
 		}
 		return this;
 	}
-	
 	private Integer lastDivisionType() {
 		int  i = segmentSql.size() - 1;
 		for ( ; i >= 0; i --) {
@@ -110,7 +105,6 @@ public class WhereCustomSegment {
 		} 
 		return rightDivision;
 	}
-	
 	public WhereCustomSegment division() {
 		
 		if (this.lastDivisionType() == rightDivision) {
@@ -120,11 +114,9 @@ public class WhereCustomSegment {
 		}
 		return this;
 	}
-	
 	public WhereCustomSegment between(String column, Object left, Object right) {
 		return this.between(true, column, left, right);
 	}
-	
 	public WhereCustomSegment like(String column, String value) { 
 		return this.like(true, column, value);
 	}
@@ -132,7 +124,6 @@ public class WhereCustomSegment {
 		this.setSimpleOpreation(ifNeed, column, value + "%", "NOT LIKE");
 		return this;
 	}
- 
 	public WhereCustomSegment notLike(String column,String value) { 
 		return this.notLike(true, column, value);
 	}
@@ -141,7 +132,6 @@ public class WhereCustomSegment {
 		this.setSimpleOpreation(ifNeed, column, value, "="); 
 		return this;
 	} 
-	
 	public WhereCustomSegment le(boolean ifNeed, String column, Object value) {
 		this.setSimpleOpreation(ifNeed, column, value, "<="); 
 		return this;
@@ -174,12 +164,9 @@ public class WhereCustomSegment {
 		this.gt(true, column, value);
 		return this;
 	}
-	
-	
 	public WhereCustomSegment eq(String column, Object value) {
 		return this.eq(true, column, value);
 	}
-	
 	public WhereCustomSegment notEq(boolean ifNeed, String column, Object value) {
 		this.setSimpleOpreation(ifNeed, column, value, "<>"); 
 		return this;
@@ -187,9 +174,6 @@ public class WhereCustomSegment {
 	public WhereCustomSegment notEq(String column, Object value) {
 		return this.notEq(true, column, value);
 	}
-	
-	
-	
 	private void inOrNotIn(StringBuffer sb, String op, String column, Collection<?> value) {
 		sb.append(op).append(" ("); 
 		Iterator<?> iterator = value.iterator();
@@ -204,7 +188,6 @@ public class WhereCustomSegment {
 			   .append("_")
 			   .append(index ++);
 			
-			
 			sb.append("#{parameter.")
 			  .append(sub)
 			  .append("},");
@@ -216,8 +199,6 @@ public class WhereCustomSegment {
 		
 		sb.append(")");
 	}
-	
-	
 	public WhereCustomSegment in(String column, Collection<?> value) { 
 		return this.in(true, column, value);
 	} 
@@ -237,10 +218,7 @@ public class WhereCustomSegment {
 	public WhereCustomSegment in(boolean ifNeed, String column, Object[] value) { 
 		return this.in(ifNeed, column, Arrays.asList(value));
 	} 
-	
-	
 	public WhereCustomSegment notIn(String column, Collection<?> value) { 
-		
 		return this.notIn(true, column, value);
 	} 
 	public WhereCustomSegment notIn(boolean ifNeed, String column, Collection<?> value) { 
@@ -259,15 +237,12 @@ public class WhereCustomSegment {
 	public WhereCustomSegment notIn(boolean ifNeed, String column, Object[] value) { 
 		return this.notIn(ifNeed, column, Arrays.asList(value));
 	} 
-	
-	
 	public List<String> getSegmentSql() {
 		if (this.lastDivisionType() == leftDivision) {
 			segmentSql.add(")");
 		}
 		return segmentSql;
 	}
-	
 	public void setSegmentSql(List<String> segmentSql) {
 		this.segmentSql = segmentSql;
 	}
@@ -277,5 +252,4 @@ public class WhereCustomSegment {
 	public void setParameter(Map<String, Object> parameter) {
 		this.parameter = parameter;
 	}
-	
 }

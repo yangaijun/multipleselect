@@ -122,7 +122,6 @@ public class MultipleFactory {
 	public static MultipleSelect makeSelect(String otherColumns,Object ...entities) {
 		return make(otherColumns, Arrays.asList(entities));
 	}
-	
 	//get table nick name addition '.' and table column by entity column 'tempColumn'
 	public static String getOtherColumnName(String tempColumn, TableEntity[] tes) {
 		String[] split$2 = tempColumn.split("\\.");
@@ -171,7 +170,6 @@ public class MultipleFactory {
 
 		return sb.toString();
 	}
-	
 	private static String getOtherAllColumnName(String string, TableEntity[] tes) {
 
 		TableEntity te = null;
@@ -195,7 +193,6 @@ public class MultipleFactory {
 		} 
 		return te.getSelectSegment();
 	}
-
 	//strip injection
 	private static String getStringValueByObject(String prefix, Object value, Map<String, Object> parameter) {
 		
@@ -204,7 +201,6 @@ public class MultipleFactory {
 		parameter.put(prefix, value);
 		return sb.toString();
 	}
-	
 	//find two table same column,from during index 'i' to first
 	private static Map<String, String> findSameColumn(TableEntity entity, TableEntity[] tes, int i) {
 		Map<String, String> map = new HashMap<>();
@@ -224,7 +220,6 @@ public class MultipleFactory {
 					String columnRight = tes[j].getFilter().get(tryId);
 					if (columnRight == null)
 						columnRight = getTableColumn(tryId); 
-					
 					map.put("column_right", columnRight);
 					map.put("table", tes[j].getNickName());
 					return map;
@@ -232,7 +227,6 @@ public class MultipleFactory {
 					String columnRight = tes[j].getFilter().get(curId);
 					if (columnRight == null)
 						columnRight = getTableColumn(curId);
-					
 					map.put("column_right", columnRight);
 					map.put("table", tes[j].getNickName());
 					return map;
@@ -262,18 +256,19 @@ public class MultipleFactory {
 				}
 				if (!field.getAnnotation(TableField.class).value().equals("")) { 
 					filter.put(field.getName(), field.getAnnotation(TableField.class).value());
-				}
+				} 
+			} else if (field.isAnnotationPresent(TableId.class)) {
+				if (!field.getAnnotation(TableId.class).value().equals("")) { 
+					filter.put(field.getName(), field.getAnnotation(TableId.class).value());
+				} 
 			}
 		}
 		return names;
 	}
 	//entity column to table column
 	public static String getTableColumn(String attribute) { 
-		
 		return attribute.replaceAll("[A-Z]", "_$0").toLowerCase();
-		
 	}
-	
 	//get table name by entity annotation
 	public static String getTableName(Object entity) {
 		if (entity.getClass().isAnnotationPresent(TableName.class)) {
@@ -283,7 +278,6 @@ public class MultipleFactory {
 		return null;
 		
 	}
-	
 	//get table logic column name  by  entity annotation
 	public static String getTableLogic(Object entity) {
 		 for (Field filed: entity.getClass().getDeclaredFields()) { 

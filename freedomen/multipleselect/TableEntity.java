@@ -13,26 +13,22 @@ public class TableEntity {
 	private String logicDelete;
 	private List<String> notExsit;
 	private Map<String, String> filter;
+	
 	public Object getEntity() {
 		return entity;
 	}
-
 	public void setEntity(Object entity) {
 		this.entity = entity;
 	}
-
 	public String getTableName() {
 		return tableName;
 	} 
-	
 	public String getNickName() {
 		return nickName;
 	}
-
 	public void setNickName(String nickName) {
 		this.nickName = nickName;
 	}
-
 	public void setTableName(String tableName) {
 		this.tableName = tableName;
 		this.nickName = tableName.replaceAll("_", "");
@@ -66,29 +62,22 @@ public class TableEntity {
 		sb.deleteCharAt(sb.length() - 1);
 		
 		return sb.toString();
-		
 	}
-
 	public String getLogicDelete() {
 		return logicDelete;
 	}
-
 	public void setLogicDelete(String logicDelete) {
 		this.logicDelete = logicDelete;
 	}
-
 	public List<String> getNotExsit() {
 		return notExsit;
 	}
-
 	public void setNotExsit(List<String> notExsit) {
 		this.notExsit = notExsit;
 	}
-
 	public Map<String, String> getFilter() {
 		return filter;
 	}
-
 	public void setFilter(Map<String, String> filter) {
 		this.filter = filter;
 	}
