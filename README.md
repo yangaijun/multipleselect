@@ -3,7 +3,15 @@ java mybatis 多表查询
 
 ### 简介
 
- 	实现简单的实体类操作多表,  首先你的项目是使用了mybatis-plus 才可以使用
+ 	实现简单的实体类操作多表,  首先你的项目是使用了mybatis-plus 才可以使用,   通过解析实体，调用通用的XML来实现多表查询， 提供一个设计多表查询的思路，复杂的Sql嵌套等目前并不支持，
+
+***目前只支持***：
+
+​	 left join方式，（能关联的两张表的实体中关联字段名称必须一样，数据库字段可以不一样可以通@TableField注解来解决
+
+​    where 基本查询条件等
+
+可以用来三两句搞定一些简单关联查询业务，解决不需要写的代码
 
 ### 设计说明
 
@@ -19,13 +27,20 @@ java mybatis 多表查询
   @TableId
   private Integer addressId
   private Integer userId
+  //那么自动条件为  user.user_id = address.user_id
+
+  //或者是
+@TableId(value="id")
+  private Integer userId
+  // address 表
+  @TableId(value="id")
+  private Integer addressId
+  @TableField(value="test_user_id")
+  private Integer userId
+  //目前只有left join
+  //那么自动条件为  user.id = address.test_user_id
   ```
-
   
-
-  
-
-​			
 
 ### 使用说明
 
@@ -47,15 +62,14 @@ multipleService.mulSelect(multipleSelect);
     
 ```
 
-
-
 #### 查找字段
 
 ```java
 //MultipleSelect.newInstance 的第一个参数是所要查找的字段
 //${0} 或 ${user} 表是第一张表的所有字段  ${0}.userName或${user}.userName表示userName字段， 默认第一张表的字段全部都返回的。 ${}中间的参数可以是后面实体的下标，也可以是表名 如user、user_address
-
+//字段中有@TableField(exist=false)注解也是被跳过的
 //下面是要订单表的所有信息 和用户的姓名与号码 和地址
+
 MultipleSelect.newInstance("${1}.userName,${1}.userPhone,${2}", new Orders(), new User(), new Address());
 ```
 
@@ -67,15 +81,33 @@ MultipleSelect.newInstance("${1}.userName,${1}.userPhone,${2}", new Orders(), ne
 * between:  between
 * and:  改变连接方式为 AND练级（默认）
 * or:  改变 连接方式为 OR
-* division：括号
+* division：括号  ，不支持括号嵌套括号
 * in:  IN
 * notIn:  NOT IN
 * notLike:   NOT LIKE
-* ...等等
+* ...
 
 ```java
 //实例好 查找实体后可以操作实体
+
 //注意： 如何实体内属性有值  将会以 eq方式and连接做为where 条件
+/*
+可以关联的必要条件
+Orders:
+	@TableId //或者数据库字段为其它@TableId(value="id")
+	private Long ordersId;
+	private Long userId;
+	...
+User: 
+	@TableId
+	private Long userId;
+	...
+Address:
+	@TableId
+	private Long addressId;
+	private Long userId;
+	...
+*/
 MultipleSelect multipleSelect = MultipleSelect.newInstance("${1}.userName,${1}.userPhone,${2}", new Orders(), new User(), new Address());
 
 multipleSelect
@@ -96,13 +128,21 @@ multipleSelect
 
 multipleService.mulSelect(multipleSelect); //查询
 
+//括号
+multipleSelect.where("${0}")
+    .eq("componyId", 1)
+    .division()
+    .like("userName", "abcd")
+    .or()
+    .like("userPhone", "abcd");
+// 部分sql: compony_id = 1 and (user_name = 'abcd' or user_phone = 'abcd')    
 ```
 
 #### 排序
 
 ```java
 //MultipleSelect.setOrderBy(...columns)
-MultipleSelect.setOrderBy("${1}.ordersName desc", "${2}.userId asc", ...)
+MultipleSelect.setOrderBy("${0}.createTime", "${1}.ordersName desc", "${2}.userId asc", ...)
 ```
 
 #### 分页
