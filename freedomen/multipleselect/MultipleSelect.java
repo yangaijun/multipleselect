@@ -212,17 +212,21 @@ public class MultipleSelect {
 		
 		MultipleSelect ms = MultipleSelect.newInstance("${1}", new UserPO(), new UserAddressPO());
 			ms.where("${1}")
-				.in("userAddressId", Arrays.asList(1, 2, 3))
+				.isNull("userAddressRegion")
+				 .division()
+				 .in("userAddressId", Arrays.asList(1))
 				.like("userAddressRegion", "123456")
-				.between("createTime", new Date(), 45)
+				.like("userAddressName", "123456") 
+				.orOnce()
 				.division()
-				.eq("userAddressName", "cmad")
-				.or()
-				.ge("userAddressMaster", 0);
+				.like("userAddressRegion", "123454446") 
+				.like("userAddressName", "123454446")
+				.like("userAddressId", "123454446");
+				
+				 
 			ms.getSqlSegment();
 			
-		System.out.println(ms.getJoin());
-		System.out.println(ms.getColumns());
+		System.out.println(ms.getSqlSegment());
 				
 	}
 }

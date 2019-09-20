@@ -24,26 +24,41 @@ public class WhereCustomSegment {
 	
 	private final Integer rightDivision = 0x0002;
 	
+	private String once = null;
+	
 	public WhereCustomSegment(TableEntity tableEntity) {
 		segmentSql = new ArrayList<>();
 		this.tableEntity = tableEntity; 
 		parameter = new HashMap<>();
 		parameterPrefixName = "custom_" + tableEntity.getNickName() + "_";
 	}
+	private String getOpreatioalType() {
+		if (this.once != null) {
+			String temp = this.once;
+			this.once = null;
+			return temp; 
+		} else { 
+			return currentOpreatioalType;
+		}
+	}
 	//create same segment [tableName].[tableCoumn] as: 'and table1.table_column1',if no column be found,return null;
 	private StringBuffer getPublicSegment(String column) {
 		StringBuffer sb = new StringBuffer();
 		if (!tableEntity.getAllEntityColumns().contains(column)) {
-			(new Exception("no column " + column + " be found in table " + tableEntity.getNickName())).printStackTrace();
+			(new Exception("no column '" + column + "' be found in table " + tableEntity.getTableName())).printStackTrace();
 			return null;
 		}
-		
+
 		try {
 			if (segmentSql.get(segmentSql.size() - 1).indexOf("(") == -1 
-					|| (segmentSql.get(segmentSql.size() - 1).indexOf("(") != -1 && segmentSql.get(segmentSql.size() - 1).indexOf(")") != -1))
-				sb.append(currentOpreatioalType);
+					|| (segmentSql.get(segmentSql.size() - 1).indexOf("(") != -1 
+						&& segmentSql.get(segmentSql.size() - 1).indexOf(")") != -1
+						&& segmentSql.get(segmentSql.size() - 1).indexOf("(") < segmentSql.get(segmentSql.size() - 1).indexOf(")")))
+				
+				sb.append(getOpreatioalType()); 
+
 		} catch (Exception e) {
-			sb.append(currentOpreatioalType);
+			sb.append(getOpreatioalType());
 		}
 		
 		sb.append(" ")
@@ -53,11 +68,23 @@ public class WhereCustomSegment {
 		
 		return sb;
 	} 
+	private String getKey(String column) {
+		String key = null;
+		int index = 0;
+		do {
+			key = this.parameterPrefixName + column + index ++; 
+			//if var name use 10, 
+			if (index > 10)
+				break;
+		} while (parameter.get(key) != null);
+		return key;
+	}
 	private void setSimpleOpreation(boolean ifNeed,String column, Object value,String opreation) {
 		if (ifNeed) {
 			StringBuffer sb = getPublicSegment(column); 
 			if (sb != null) { 
-				String key = this.parameterPrefixName + column;
+				String key = getKey(column);
+				 
 				sb.append(opreation)
 				  .append(" ")
 				  .append("#{parameter.")
@@ -80,6 +107,14 @@ public class WhereCustomSegment {
 	public WhereCustomSegment and() {
 		if (!this.currentOpreatioalType.equals("AND"))
 			this.currentOpreatioalType = "AND";
+		return this;
+	}
+	public WhereCustomSegment andOnce() {
+		this.once = "AND";
+		return this;
+	}
+	public WhereCustomSegment orOnce() {
+		this.once = "OR";
 		return this;
 	}
 	public WhereCustomSegment between(boolean ifNeed, String column, Object left, Object right) {
@@ -108,9 +143,9 @@ public class WhereCustomSegment {
 	public WhereCustomSegment division() {
 		
 		if (this.lastDivisionType() == rightDivision) {
-			segmentSql.add(" " + currentOpreatioalType + " (");
+			segmentSql.add(" " + getOpreatioalType() + " (");
 		} else {
-			segmentSql.add(") " + currentOpreatioalType + " (");
+			segmentSql.add(") " + getOpreatioalType() + " (");
 		}
 		return this;
 	}
@@ -212,6 +247,21 @@ public class WhereCustomSegment {
 		}
 		return this;
 	} 
+	private void nullOrNotNull(String op, String column) {
+		StringBuffer sb = this.getPublicSegment(column);
+		sb.append("IS") 
+		  .append(" ")
+		  .append(op);
+		segmentSql.add(sb.toString()); 
+	}
+	public WhereCustomSegment isNull(String column) { 
+		nullOrNotNull("NULL", column);
+		return this;
+	}
+	public WhereCustomSegment isNotNull(String column) {
+		nullOrNotNull("NOT NULL", column);
+		return  this;
+	}
 	public WhereCustomSegment in(String column, Object[] value) { 
 		return this.in(true, column, Arrays.asList(value));
 	} 

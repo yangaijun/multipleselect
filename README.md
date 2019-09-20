@@ -1,5 +1,5 @@
 # multipleselect
-java mybatis 多表查询
+java mybatis 实现简单多表查询
 
 ### 简介
 
@@ -23,7 +23,7 @@ java mybatis 多表查询
 
 * 如何关联表？
 
-  找第一张表注解为 TableId （mybatis-plus 注解）的属性名， 到每二张表找同样的属性名， 如果没找到，反过来找，如果还没找到，挨个属性找。以此类推，实现关联的前提条件是 主从表的实体关联列名必须是一样的
+  ​		找第一张表注解为 TableId （mybatis-plus 注解）的属性名， 到每二张表找同样的属性名， 如果没找到，反过来找，如果还没找到，挨个属性找。以此类推，实现关联的前提条件是 主从表的实体关联列名必须是一样的
 
   ```java
   // user 表
@@ -48,9 +48,11 @@ java mybatis 多表查询
   ```
   
 
+
+
 ### 使用说明
 
-将 com.freedomen.multipselect 包放到你的项目中，使  com.freedomen.multipselect.mapper里的xml 要被扫描到，或手动配置，  com.freedomen.multipselect.service也要被发现
+​		将 com.freedomen.multipselect 包放到你的项目中，使  com.freedomen.multipselect.mapper里的xml 要被扫描到，或手动配置，  com.freedomen.multipselect.service也要被发现
 
 ```java
 
@@ -85,12 +87,16 @@ MultipleSelect.newInstance("${1}.userName,${1}.userPhone,${2}", new Orders(), ne
 * notEq:  !=
 * like:  LIKE  （前置已经加了 '%'）
 * between:  between
-* and:  改变连接方式为 AND练级（默认）
-* or:  改变 连接方式为 OR
+* and:  改变接下来的连接方式为 AND练级（默认）
+* andOnce:  改变接下来一个的连接方式为 AND
+* or:  改变接下来的连接方式为 OR
+* orOnce 改变接下来一个的连接方式为 OR
 * division：括号  ，不支持括号嵌套括号
 * in:  IN
 * notIn:  NOT IN
 * notLike:   NOT LIKE
+* isNull:  IS NULL
+* isNotNull: IS NOT NULL
 * ...
 
 ```java
