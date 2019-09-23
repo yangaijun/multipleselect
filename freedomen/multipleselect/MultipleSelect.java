@@ -1,19 +1,12 @@
 package com.freedomen.multipleselect;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap; 
 import java.util.List;
-import java.util.Map;
-
-import com.yaj.hyj.business.orders.entity.po.OrdersPO;
-import com.yaj.hyj.business.user.entity.po.UserPO;
-import com.yaj.hyj.business.useraddress.entity.po.UserAddressPO;
+import java.util.Map; 
 
 public class MultipleSelect {
-	
 	//select all columns what you want
 	private String columns;
 	//the from table name
@@ -79,31 +72,30 @@ public class MultipleSelect {
 	}
 	//TODO left : ${0}.companyId, right : ${3}.companyId
 	public MultipleSelect addJoin(String left, String right) {
-		StringBuilder sb = new StringBuilder();   
-		String left$2 = MultipleFactory.getOtherColumnName(left, tes);
-		String right$2 = MultipleFactory.getOtherColumnName(right, tes);
-		 
-		System.out.println(left$2);
-		System.out.println(right$2);
+//		StringBuilder sb = new StringBuilder();   
+//		String left$2 = MultipleFactory.getOtherColumnName(left, tes);
+//		String right$2 = MultipleFactory.getOtherColumnName(right, tes);
+//		 
+//		System.out.println(left$2);
+//		System.out.println(right$2);
 		return this;
 	}
 	//TODO
 	//get table,nick, column name by custom grammar ${0}.columnName
-	private void getTNCname(String batch) { 
-	}
+//	private void getTNCname(String batch) { 
+//	}
 	public String getSqlSegment() {
 		//reject myBatis visit three times
 		if (addCustomFlag) {
 			addCustomFlag = false;
 			this.setCustomWhere();
 		}
-		return sqlSegment;
+		return sqlSegment.replaceAll("('.+--)|(--)|(\\|)|(%7C)", "");
 	}
 	public void setSqlSegment(String sqlSegment) {
 		this.sqlSegment = sqlSegment;
 	}
 	private void setCustomWhere() {
-		
 		if (whereCustomSegments != null) {
 			StringBuffer sb = new StringBuffer(sqlSegment);
 			for (WhereCustomSegment i : whereCustomSegments) {
@@ -114,16 +106,22 @@ public class MultipleSelect {
 					sb.append(" ").append(segment);
 				}
 			} 
-			
 			for (TableEntity te : this.tes) {
 				String logic = te.getLogicDelete();
 				if (logic != null)
 					sb.append(" AND ")
+					  .append("(")
+					  .append(te.getNickName())
+					  .append(".")
+					  .append(logic)
+					  .append(" IS NULL")
+					  .append(" OR ")
 					  .append(te.getNickName())
 					  .append(".")
 					  .append(logic)
 					  .append(" = ")
-					  .append("0");
+					  .append("0")
+					  .append(")");
 			}
 			sqlSegment = sb.toString(); 
 		}
@@ -133,7 +131,6 @@ public class MultipleSelect {
 	}
 	//"${0}.orderBy asc", "${1}.cmss desc"
 	public void setOrderBy(String ...columns) {
-		
 		StringBuilder sb = new StringBuilder(); 
 		for (String column : columns) {
 			String[] t$2 = column.split(" ");
@@ -149,7 +146,6 @@ public class MultipleSelect {
 		//delete last character ','
 		if (sb.length() != 0)
 			sb.deleteCharAt(sb.length() - 1); 
-		
 		this.orderBy = sb.toString(); 
 	}
 	public TableEntity[] getTes() {
@@ -159,15 +155,12 @@ public class MultipleSelect {
 		this.tes = tes;
 	}
 	public WhereCustomSegment where(String table) {
-		
 		String tableDeputyName = table.replaceAll("\\$\\{|}", "");
 		TableEntity tableEntity = null;
 		try {
 			int tableIndex = Integer.parseInt(tableDeputyName);
-			
 			if (tableIndex < tes.length) 
 				tableEntity = tes[tableIndex]; 
-		
 		} catch (Exception e) {  
 			for (TableEntity te : tes) {
 				String column = tableDeputyName.toLowerCase();
@@ -177,20 +170,16 @@ public class MultipleSelect {
 				}
 			} 
 		}
-		
 		if (tableEntity == null) {
 			(new Exception("no table '" + table + "' be found,use default table : '0'")).printStackTrace();
 			tableEntity = tes[0];
 		}
-		
 		WhereCustomSegment whereCustomSegment = new WhereCustomSegment(tableEntity);
 		if (whereCustomSegments == null) {
 			whereCustomSegments = new ArrayList<>();
 		}
 		whereCustomSegments.add(whereCustomSegment);
-		
 		return whereCustomSegment; 
-				
 	}
 	public Integer getStart() {
 		return start;
@@ -199,34 +188,11 @@ public class MultipleSelect {
 		return end;
 	}
 	public void setPage(Integer pageNo, Integer pageSize) {
-		
 		if (pageSize == null || pageSize <= 0 || pageNo == null || pageNo <= 0) {
 			start = null; end = null;
 		} else {
 			start = (pageNo - 1) * pageSize;
 			end = pageSize;
 		}
-			
-	} 
-	public static void main(String[] args) {
-		
-		MultipleSelect ms = MultipleSelect.newInstance("${1}", new UserPO(), new UserAddressPO());
-			ms.where("${1}")
-				.isNull("userAddressRegion")
-				 .division()
-				 .in("userAddressId", Arrays.asList(1))
-				.like("userAddressRegion", "123456")
-				.like("userAddressName", "123456") 
-				.orOnce()
-				.division()
-				.like("userAddressRegion", "123454446") 
-				.like("userAddressName", "123454446")
-				.like("userAddressId", "123454446");
-				
-				 
-			ms.getSqlSegment();
-			
-		System.out.println(ms.getSqlSegment());
-				
-	}
+	}  
 }

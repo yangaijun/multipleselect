@@ -43,12 +43,11 @@ public class TableEntity {
 		return allEntityColumns;
 	}
 	public void setAllEntityColumns(List<String> allEntityColumns) {
+		
 		this.allEntityColumns = allEntityColumns;
 	}
 	public String getSelectSegment() {
-		
 		StringBuilder sb = new StringBuilder();
-		
 		for (int i = 0; i < allTableColumns.size(); i ++) {
 			if (!this.getNotExsit().contains(allEntityColumns.get(i))) { 
 				sb.append(this.nickName) 
@@ -60,7 +59,6 @@ public class TableEntity {
 			} 
 		}
 		sb.deleteCharAt(sb.length() - 1);
-		
 		return sb.toString();
 	}
 	public String getLogicDelete() {

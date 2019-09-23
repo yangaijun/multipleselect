@@ -18,13 +18,13 @@ public class WhereCustomSegment {
 	
 	private String parameterPrefixName;
 	
+	private String once = null;
+
 	private String currentOpreatioalType = "AND"; 
 	
 	private final Integer leftDivision = 0x0001;
 	
 	private final Integer rightDivision = 0x0002;
-	
-	private String once = null;
 	
 	public WhereCustomSegment(TableEntity tableEntity) {
 		segmentSql = new ArrayList<>();
@@ -48,24 +48,19 @@ public class WhereCustomSegment {
 			(new Exception("no column '" + column + "' be found in table " + tableEntity.getTableName())).printStackTrace();
 			return null;
 		}
-
 		try {
 			if (segmentSql.get(segmentSql.size() - 1).indexOf("(") == -1 
 					|| (segmentSql.get(segmentSql.size() - 1).indexOf("(") != -1 
 						&& segmentSql.get(segmentSql.size() - 1).indexOf(")") != -1
 						&& segmentSql.get(segmentSql.size() - 1).indexOf("(") < segmentSql.get(segmentSql.size() - 1).indexOf(")")))
-				
 				sb.append(getOpreatioalType()); 
-
 		} catch (Exception e) {
 			sb.append(getOpreatioalType());
 		}
-		
 		sb.append(" ")
 		  .append(tableEntity.getNickName()).append(".")
 		  .append(tableEntity.getAllTableColumns().get(tableEntity.getAllEntityColumns().indexOf(column)))
 		  .append(" ");
-		
 		return sb;
 	} 
 	private String getKey(String column) {
@@ -79,7 +74,7 @@ public class WhereCustomSegment {
 		} while (parameter.get(key) != null);
 		return key;
 	}
-	private void setSimpleOpreation(boolean ifNeed,String column, Object value,String opreation) {
+	private void setSimpleOpreation(boolean ifNeed, String column, Object value, String opreation) {
 		if (ifNeed) {
 			StringBuffer sb = getPublicSegment(column); 
 			if (sb != null) { 
@@ -141,7 +136,6 @@ public class WhereCustomSegment {
 		return rightDivision;
 	}
 	public WhereCustomSegment division() {
-		
 		if (this.lastDivisionType() == rightDivision) {
 			segmentSql.add(" " + getOpreatioalType() + " (");
 		} else {
@@ -214,7 +208,6 @@ public class WhereCustomSegment {
 		Iterator<?> iterator = value.iterator();
 		int index = 0;
 		while (iterator.hasNext()) {
-			
 			StringBuffer sub = new StringBuffer();
 			sub.append(parameterPrefixName)
 			   .append(column)
@@ -226,12 +219,11 @@ public class WhereCustomSegment {
 			sb.append("#{parameter.")
 			  .append(sub)
 			  .append("},");
-			
+
 			this.parameter.put(sub.toString(), iterator.next());
 		}
 		//delete spare character ','
 		sb.deleteCharAt(sb.length() - 1);  
-		
 		sb.append(")");
 	}
 	public WhereCustomSegment in(String column, Collection<?> value) { 
@@ -249,9 +241,9 @@ public class WhereCustomSegment {
 	} 
 	private void nullOrNotNull(String op, String column) {
 		StringBuffer sb = this.getPublicSegment(column);
-		sb.append("IS") 
-		  .append(" ")
-		  .append(op);
+			sb.append("IS") 
+			  .append(" ")
+			  .append(op);
 		segmentSql.add(sb.toString()); 
 	}
 	public WhereCustomSegment isNull(String column) { 

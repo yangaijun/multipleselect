@@ -1,16 +1,13 @@
 package com.freedomen.multipleselect;
 
-import java.beans.PropertyDescriptor; 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.springframework.beans.BeanUtils;
 
 import com.baomidou.mybatisplus.annotations.TableField;
 import com.baomidou.mybatisplus.annotations.TableId;
@@ -21,7 +18,6 @@ import com.baomidou.mybatisplus.annotations.TableName;
 public class MultipleFactory { 
 	
 	private static MultipleSelect make(String otherColumns, Collection<?> entities) {
-
 		MultipleSelect mulSelect = new MultipleSelect(); 
 		//create tableEntity
 		TableEntity[] tes = new TableEntity[entities.size()];
@@ -34,12 +30,12 @@ public class MultipleFactory {
 				te.setNotExsit(getTableField(o, filter));
 				te.setFilter(filter);
 				te.setEntity(o);
-				te.setTableName(getTableName(o));
+				te.setTableName(getTableName(o)); 
 				te.setAllEntityColumns(getAllEntityColumns(o));
 				te.setAllTableColumns(entityColumnsToTableColumns(te.getAllEntityColumns(), filter));
 			tes[k ++] = te;
-		}
-		
+			
+		} 
 		//set select columns 
 		String[] others = otherColumns.replaceAll(" ", "").split(",");
 		StringBuilder otherColumnSb = new StringBuilder();
@@ -51,18 +47,14 @@ public class MultipleFactory {
 		otherColumnSb.insert(0, tes[0].getSelectSegment());
 		mulSelect.setColumns(otherColumnSb.toString());
 		mulSelect.setMasterTable(tes[0].getTableName() + " as " + tes[0].getNickName());
-		
 		//create left join segment
 		List<String> join = new ArrayList<>();
 		for (int i = 1; i < tes.length; i ++) {
 			StringBuilder sb = new StringBuilder();
-			
 			Map<String, String> map = findSameColumn(tes[i], tes, i);
 			if (map == null) 
 				continue;
-			
 			TableEntity te = tes[i];
-			
 			sb.append(te.getTableName())
 			  .append(" as ")
 			  .append(te.getNickName())
@@ -78,17 +70,15 @@ public class MultipleFactory {
 			join.add(sb.toString());
 		}
 		mulSelect.setJoin(join);
-		
 		//create sqlSegment
 		StringBuilder sb = new StringBuilder();
-		PropertyUtilsBean propertyUtilsBean = new PropertyUtilsBean();
-		Map<String, Object> parameter = new HashMap<>();
+		Map<String, Object> parameter = new HashMap<>(); 
 		for (TableEntity te : tes) {
 			for (int i = 0; i < te.getAllEntityColumns().size(); i ++) {
 				if (!te.getNotExsit().contains(te.getAllEntityColumns().get(i))) {
 					Object value;
 					try {
-						value = propertyUtilsBean.getProperty(te.getEntity(), te.getAllEntityColumns().get(i));
+						value = getFieldValue(te.getEntity(), te.getAllEntityColumns().get(i));
 						if (value != null) {
 							String parameterName = "entity_" + te.getNickName() + "_" + te.getAllEntityColumns().get(i);
 							sb.append(" and ")
@@ -105,12 +95,10 @@ public class MultipleFactory {
 			}
 		} 
 		mulSelect.addParameter(parameter);
-		
 		//strip sql injection
 		String sql = sb.toString();
-		sql = sql == null ? null : sql.replaceAll("('.+--)|(--)|(\\|)|(%7C)", "");
+//		sql = sql == null ? null : sql.replaceAll("('.+--)|(--)|(\\|)|(%7C)", "");
 		mulSelect.setSqlSegment(sql);
-		
 		mulSelect.setTes(tes);
 		return mulSelect;
 	}
@@ -121,6 +109,17 @@ public class MultipleFactory {
 	public static MultipleSelect makeSelect(String otherColumns,Object ...entities) {
 		return make(otherColumns, Arrays.asList(entities));
 	}
+	private static Object getFieldValue(Object entity, String fieldName) {  
+        try {    
+            String firstLetter = fieldName.substring(0, 1).toUpperCase();    
+            String getter = "get" + firstLetter + fieldName.substring(1);    
+            Method method = entity.getClass().getMethod(getter, new Class[] {});    
+            Object value = method.invoke(entity, new Object[] {});    
+            return value;    
+        } catch (Exception e) {    
+            return null;    
+        }    
+    }  
 	//get table nick name addition '.' and table column by entity column 'tempColumn'
 	public static String getOtherColumnName(String tempColumn, TableEntity[] tes) {
 		String[] split$2 = tempColumn.split("\\.");
@@ -133,23 +132,17 @@ public class MultipleFactory {
 		String tableName = null;
 		String tableColumn = null;
 		StringBuilder sb = new StringBuilder();
-		
 		try {
 			int tableIndex = Integer.parseInt(tableDeputyName);
-			
 			if (tableIndex >= tes.length)
 				return null;
-			
 			tableName = tes[tableIndex].getNickName();
-			
 			if (!tes[tableIndex].getAllEntityColumns().contains(split$2[1])) {
 				return null;
 			} else {
 				tableColumn = tes[tableIndex].getAllTableColumns().get(tes[tableIndex].getAllEntityColumns().indexOf(split$2[1]));
 			}
-			
 		} catch (Exception e) { 
-			
 			for (TableEntity te : tes) {
 				String column = tableDeputyName.toLowerCase();
 				if (column.equals(te.getNickName().toLowerCase()) || column.equals(te.getTableName().toLowerCase())) {
@@ -161,7 +154,6 @@ public class MultipleFactory {
 					}
 				}
 			}
-			
 		}
 		if (tableName == null || tableColumn == null)
 			return null;
@@ -170,16 +162,12 @@ public class MultipleFactory {
 		return sb.toString();
 	}
 	private static String getOtherAllColumnName(String string, TableEntity[] tes) {
-
 		TableEntity te = null;
 		try {
 			int tableIndex = Integer.parseInt(string);
-			
 			if (tableIndex >= tes.length)
 				return null;
-			 
 			te = tes[tableIndex];
-			
 		} catch (Exception e) { 
 			for (TableEntity t : tes) {
 				String column = string.toLowerCase();
@@ -188,13 +176,11 @@ public class MultipleFactory {
 					break;
 				}
 			}
-			
 		} 
 		return te.getSelectSegment();
 	}
 	//strip injection
 	private static String getStringValueByObject(String prefix, Object value, Map<String, Object> parameter) {
-		
 		StringBuilder sb = new StringBuilder();
 		sb.append("#{parameter.").append(prefix).append("}");
 		parameter.put(prefix, value);
@@ -204,12 +190,11 @@ public class MultipleFactory {
 	private static Map<String, String> findSameColumn(TableEntity entity, TableEntity[] tes, int i) {
 		Map<String, String> map = new HashMap<>();
 		String tryId = getIdAnnotation(entity.getEntity().getClass());
-		
 		String columnLeft = entity.getFilter().get(tryId);
 		if (columnLeft == null) {
 			columnLeft = getTableColumn(tryId);
 		}
-		map.put("column_left", columnLeft); 
+		map.put("column_left", columnLeft);
 		
 		if (tryId != null) 
 			for (int j = 0; j < i; j ++) {
@@ -287,9 +272,7 @@ public class MultipleFactory {
 	}	
 	//all of entity columns convert to table columns
 	private static List<String> entityColumnsToTableColumns(List<String> columns, Map<String, String> filter) {
-		
 		List<String> tableColumns = new ArrayList<>();
-		
 		columns.forEach(i -> {
 			if (filter.get(i) != null) {
 				tableColumns.add(filter.get(i));
@@ -297,21 +280,15 @@ public class MultipleFactory {
 				tableColumns.add(getTableColumn(i));
 			}
 		});
-		
 		return tableColumns;
-		
 	} 
 	//get all columns by entity
 	private static List<String> getAllEntityColumns(Object entity) {
-		
-		PropertyDescriptor[] properties = BeanUtils.getPropertyDescriptors(entity.getClass());
-		List<String> names = new ArrayList<>();
-		
-		for (PropertyDescriptor property : properties) {
-			if (!property.getName().equals("class"))
-				names.add(property.getName());
-		}
-		
+		Field[] fields = entity.getClass().getDeclaredFields();  
+		List<String> names = new ArrayList<>(fields.length); 
+        for (Field field: fields) {
+        	names.add(field.getName());
+        } 
 		return names;
 	}
 }
