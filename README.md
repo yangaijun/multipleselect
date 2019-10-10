@@ -7,7 +7,7 @@ java mybatis 实现简单多表通用查询
 
 ​	 实现简单的实体类操作多表,  首先你的项目是使用了mybatis-plus 才可以使用。
 
-​	 不做任何更改，与手写XML 功能一样。
+​	 不做任何更改，也不会对项目产生任何影响，与手写XML 功能一样。
 
 ​     通过解析实体，调用通用的XML来实现多表查询， 提供一个设计多表查询的思路，复杂的Sql嵌套等目前并不支持。
 
@@ -40,10 +40,9 @@ java mybatis 实现简单多表通用查询
   private Integer addressId
   private Integer userId
   //那么自动条件为  user.user_id = address.user_id
-
-  //或者是
-@TableId(value="id")
-  private Integer userId
+//或者是
+  @TableId(value="id")
+private Integer userId
   // address 表
   @TableId(value="id")
   private Integer addressId
@@ -51,7 +50,7 @@ java mybatis 实现简单多表通用查询
   private Integer userId
   //目前只有left join
   //那么自动条件为  user.id = address.test_user_id
-  //如果你符合这条件，你就往里扔就完整了
+  //如果符合这设计条件，你就往里扔就完事了
   ```
   
 
@@ -64,7 +63,6 @@ java mybatis 实现简单多表通用查询
 3. com.freedomen.multipselect.service也要被发现
 
 ```java
-
 //引入service
 @Autowired
 private MultipleService multipleService;
@@ -76,7 +74,6 @@ multipleSelect
     .like("userName", "张三");
 
 multipleService.mulSelect(multipleSelect);
-    
 ```
 
 #### 查找字段
@@ -106,7 +103,7 @@ MultipleSelect.newInstance("${1}.userName,${1}.userPhone,${2}", new Orders(), ne
 * notLike:   NOT LIKE
 * isNull:  IS NULL
 * isNotNull: IS NOT NULL
-* sql: 简易自定义带sql函数语句
+* sql: 简易自定义带sql代码片段
 * ...
 
 ```java
@@ -173,15 +170,16 @@ MultipleSelect.setOrderBy("${0}.createTime", "${1}.ordersName desc", "${2}.userI
 //分组一般都要结合聚集函数使用，可以使用的：AVG, COUNT, MAX, MIN, SUM
 /**统计用户订单总额*/ 
 // 聚集函数使用 函数名:${表名/下标}.属性名; 不可以重命名哦， 下面的sum 字段仍然是 price
-MultipleSelect.newInstance("${1}, sum:${1}.price", new Orders(), new User());
+MultipleSelect.newInstance("${1}, sum:${0}.price", new Orders(), new User());
 //(...columns)
 MultipleSelect.setGoupBy("${0}.userId", ...);
 ```
 
-#### SQL 使用
+#### SQL 方法使用
 
 ```java
-//如  查找创建日期为 2019年10月 的订单， 两个问号对应两个参数
+//如  查找创建日期为 2019年10月 的订单;
+//两个问号对应两个参数, 其中使用的仍然是实体的Filed名，不是数据表的字段名
 multipleSelect.where("${orders}").sql("year(createTime)=? and month(createTime)=?", new Object[]{2019, 10});
 ```
 
