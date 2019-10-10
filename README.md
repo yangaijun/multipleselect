@@ -1,21 +1,27 @@
 # multipleselect
-java mybatis 实现简单多表查询
+java mybatis 实现简单多表通用查询
 
 ### 简介
 
- 	实现简单的实体类操作多表,  首先你的项目是使用了mybatis-plus 才可以使用。
+ 	实现项目中比较基本的多表通用查询。
 
-​     通过解析实体，调用通用的XML来实现多表查询， 提供一个设计多表查询的思路，复杂的Sql嵌套等目前并不支持
+​	 实现简单的实体类操作多表,  首先你的项目是使用了mybatis-plus 才可以使用。
 
-***目前只支持***：
+​	 不做任何更改，与手写XML 功能一样。
 
-​	 left join方式，（能关联的两张表的实体中关联字段名称必须一样，数据库字段可以不一样可以通@TableField注解来解决
+​     通过解析实体，调用通用的XML来实现多表查询， 提供一个设计多表查询的思路，复杂的Sql嵌套等目前并不支持。
 
-​    where 基本查询条件等
+#### 目前支持：
+
+​	 left join方式，能关联的两张表的实体中关联字段名称必须一样，数据库字段可以不一样可以通@TableField注解来解决，right join 换个位置喽 其它方式还没有）
+
+​    where 基本查询条件, sql函数 等
 
 ​	分页 查询
 
 ​	order 排序
+
+​	简易 group by, 还没有Having哦
 
 可以用来三两句搞定一些简单关联查询业务，解决不需要写的代码
 
@@ -45,14 +51,17 @@ java mybatis 实现简单多表查询
   private Integer userId
   //目前只有left join
   //那么自动条件为  user.id = address.test_user_id
+  //如果你符合这条件，你就往里扔就完整了
   ```
   
 
-
-
 ### 使用说明
 
-​		将 com.freedomen.multipselect 包放到你的项目中，使  com.freedomen.multipselect.mapper里的xml 要被扫描到，或手动配置，  com.freedomen.multipselect.service也要被发现
+   1.将 com.freedomen.multipselect 包放到你的项目中
+
+   2.使  com.freedomen.multipselect.mapper里的xml 要被扫描到，或手动配置  
+
+3. com.freedomen.multipselect.service也要被发现
 
 ```java
 
@@ -97,6 +106,7 @@ MultipleSelect.newInstance("${1}.userName,${1}.userPhone,${2}", new Orders(), ne
 * notLike:   NOT LIKE
 * isNull:  IS NULL
 * isNotNull: IS NOT NULL
+* sql: 简易自定义带sql函数语句
 * ...
 
 ```java
@@ -155,6 +165,24 @@ multipleSelect.where("${0}")
 ```java
 //MultipleSelect.setOrderBy(...columns)
 MultipleSelect.setOrderBy("${0}.createTime", "${1}.ordersName desc", "${2}.userId asc", ...)
+```
+
+#### 分组
+
+```java
+//分组一般都要结合聚集函数使用，可以使用的：AVG, COUNT, MAX, MIN, SUM
+/**统计用户订单总额*/ 
+// 聚集函数使用 函数名:${表名/下标}.属性名; 不可以重命名哦， 下面的sum 字段仍然是 price
+MultipleSelect.newInstance("${1}, sum:${1}.price", new Orders(), new User());
+//(...columns)
+MultipleSelect.setGoupBy("${0}.userId", ...);
+```
+
+#### SQL 使用
+
+```java
+//如  查找创建日期为 2019年10月 的订单， 两个问号对应两个参数
+multipleSelect.where("${orders}").sql("year(createTime)=? and month(createTime)=?", new Object[]{2019, 10});
 ```
 
 #### 分页

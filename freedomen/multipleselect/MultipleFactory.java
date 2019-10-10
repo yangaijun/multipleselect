@@ -14,14 +14,21 @@ import com.baomidou.mybatisplus.annotations.TableId;
 import com.baomidou.mybatisplus.annotations.TableLogic;
 import com.baomidou.mybatisplus.annotations.TableName;
 
-
 public class MultipleFactory { 
-	
+	private static List<String> AGGREGATES;
+	static {
+		AGGREGATES = new ArrayList<>(); 
+		AGGREGATES.add("AVG");
+		AGGREGATES.add("COUNT");
+		AGGREGATES.add("MAX");
+		AGGREGATES.add("MIN");
+		AGGREGATES.add("SUM"); 
+	}
 	private static MultipleSelect make(String otherColumns, Collection<?> entities) {
 		MultipleSelect mulSelect = new MultipleSelect(); 
 		//create tableEntity
 		TableEntity[] tes = new TableEntity[entities.size()];
-		int k = 0; 
+		int k = 0;  
 		for (Object o : entities) { 
 			//Property name is inconsistent with database field name, filter
 			Map<String, String> filter = new HashMap<>();
@@ -34,15 +41,29 @@ public class MultipleFactory {
 				te.setAllEntityColumns(getAllEntityColumns(o));
 				te.setAllTableColumns(entityColumnsToTableColumns(te.getAllEntityColumns(), filter));
 			tes[k ++] = te;
-			
-		} 
+		}  
 		//set select columns 
 		String[] others = otherColumns.replaceAll(" ", "").split(",");
 		StringBuilder otherColumnSb = new StringBuilder();
 		for (String column : others) {
-			String back = getOtherColumnName(column, tes);
-			if (back != null)
-				otherColumnSb.append(",").append(back);
+			if (column.indexOf(":") != -1) {
+				String[] column$2 = column.split(":"); 
+				String back = getOtherColumnName(column$2[1], tes);
+				if (back != null && AGGREGATES.contains(column$2[0].toUpperCase())) {
+					String[] ctName$t2 = back.split(" "); 
+					otherColumnSb.append(",")
+						.append(column$2[0])
+						.append("(")
+						.append(ctName$t2[0])
+						.append(")")
+						.append(" ")
+						.append(ctName$t2[1]);
+				}
+			} else {
+				String back = getOtherColumnName(column, tes);
+				if (back != null)
+					otherColumnSb.append(",").append(back);
+			}
 		}
 		otherColumnSb.insert(0, tes[0].getSelectSegment());
 		mulSelect.setColumns(otherColumnSb.toString());
@@ -95,10 +116,7 @@ public class MultipleFactory {
 			}
 		} 
 		mulSelect.addParameter(parameter);
-		//strip sql injection
-		String sql = sb.toString();
-//		sql = sql == null ? null : sql.replaceAll("('.+--)|(--)|(\\|)|(%7C)", "");
-		mulSelect.setSqlSegment(sql);
+		mulSelect.setSqlSegment(sb.toString());
 		mulSelect.setTes(tes);
 		return mulSelect;
 	}
@@ -216,7 +234,6 @@ public class MultipleFactory {
 					return map;
 				}
 			}
-		
 		return null;
 	}
 	//get entity has @TableId annotation field name
@@ -258,7 +275,7 @@ public class MultipleFactory {
 		if (entity.getClass().isAnnotationPresent(TableName.class)) {
 			return entity.getClass().getAnnotation(TableName.class).value(); 
 		}
-		(new Exception("the entity " + entity.getClass().getSimpleName() + "is not use @tableName annotation")).printStackTrace();
+		(new Exception("the entity " + entity.getClass().getSimpleName() + " is not use @tableName annotation")).printStackTrace();
 		return null;
 		
 	}
@@ -289,6 +306,6 @@ public class MultipleFactory {
         for (Field field: fields) {
         	names.add(field.getName());
         } 
-		return names;
+        return names;
 	}
 }

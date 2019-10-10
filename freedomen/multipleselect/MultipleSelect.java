@@ -1,18 +1,20 @@
 package com.freedomen.multipleselect;
 
-import java.util.ArrayList;
+import java.util.ArrayList; 
 import java.util.Collection;
 import java.util.HashMap; 
 import java.util.List;
 import java.util.Map; 
 
-public class MultipleSelect {
+public class MultipleSelect { 
 	//select all columns what you want
 	private String columns;
 	//the from table name
 	private String masterTable;
 	// order by columns
 	private String orderBy;
+	//group by
+	private String groupBy;
 	//left join table names 
 	private List<String> join;
 	//where sql segment
@@ -23,13 +25,16 @@ public class MultipleSelect {
 	private List<WhereCustomSegment> whereCustomSegments = null;
 	//avoid sql injection parameters
 	private Map<String, Object> parameter = null;
-	
+	//limit lk
 	private boolean addCustomFlag = true;
-	
+	//limit start
 	private Integer start = null;
-
-	private Integer end = null;
+	//limit end
+	private Integer end = null; 
 	
+	public static void AggeegatesName() {
+		
+	}
 	public static MultipleSelect newInstance(String otherColumns, Collection<?> entities) {
 		return  MultipleFactory.makeSelect(otherColumns, entities);
 	}
@@ -101,7 +106,6 @@ public class MultipleSelect {
 			for (WhereCustomSegment i : whereCustomSegments) {
 				if (parameter != null && i.getParameter() != null)
 					addParameter(i.getParameter());
-				
 				for (String segment : i.getSegmentSql()) {
 					sb.append(" ").append(segment);
 				}
@@ -126,11 +130,7 @@ public class MultipleSelect {
 			sqlSegment = sb.toString(); 
 		}
 	}
-	public String getOrderBy() {
-		return orderBy;
-	}
-	//"${0}.orderBy asc", "${1}.cmss desc"
-	public void setOrderBy(String ...columns) {
+	private String parseColumns(String ...columns) {
 		StringBuilder sb = new StringBuilder(); 
 		for (String column : columns) {
 			String[] t$2 = column.split(" ");
@@ -140,13 +140,27 @@ public class MultipleSelect {
 				if (t$2.length == 2) {
 					sb.append(" ").append(t$2[1]);
 				}
-				sb.append(", ");
+				sb.append(",");
 			}
 		}
 		//delete last character ','
-		if (sb.length() != 0)
-			sb.deleteCharAt(sb.length() - 1); 
-		this.orderBy = sb.toString(); 
+		if (sb.length() != 0) {
+			sb.deleteCharAt(sb.length() - 1);
+		} 
+		return sb.toString();
+	}
+	public String getOrderBy() {
+		return orderBy;
+	}
+	public void setGroupBy(String ...columns) {
+		this.groupBy = parseColumns(columns);
+	}
+	public String getGroupBy() {
+		return this.groupBy;
+	}
+	//"${0}.orderBy asc", "${1}.cmss desc"
+	public void setOrderBy(String ...columns) {
+		this.orderBy = parseColumns(columns); 
 	}
 	public TableEntity[] getTes() {
 		return tes;
@@ -194,5 +208,5 @@ public class MultipleSelect {
 			start = (pageNo - 1) * pageSize;
 			end = pageSize;
 		}
-	}  
+	} 
 }

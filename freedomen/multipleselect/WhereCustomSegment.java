@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Map; 
 
 public class WhereCustomSegment { 
 	
@@ -78,8 +78,7 @@ public class WhereCustomSegment {
 		if (ifNeed) {
 			StringBuffer sb = getPublicSegment(column); 
 			if (sb != null) { 
-				String key = getKey(column);
-				 
+				String key = getKey(column); 
 				sb.append(opreation)
 				  .append(" ")
 				  .append("#{parameter.")
@@ -127,13 +126,21 @@ public class WhereCustomSegment {
 	}
 	private Integer lastDivisionType() {
 		int  i = segmentSql.size() - 1;
-		for ( ; i >= 0; i --) {
-			//has left '(' no  ')' 
-			if (segmentSql.get(i).indexOf("(") != -1 && segmentSql.get(i).indexOf(")") == -1) {
-				return leftDivision;
+		int  countLeft = 0, countRight = 0; 
+		for ( ; i >= 0; i --) { 
+			int index = 0;
+			while (index < segmentSql.get(i).length()) {
+				if (segmentSql.get(i).charAt(index) == '(') {
+					countLeft ++;
+				} else if (segmentSql.get(i).charAt(index) == ')') {
+					countRight ++;
+				}
+				index ++;
 			}
 		} 
-		return rightDivision;
+		if (countLeft == countRight)
+			return rightDivision;
+		else return leftDivision;
 	}
 	public WhereCustomSegment division() {
 		if (this.lastDivisionType() == rightDivision) {
@@ -293,5 +300,39 @@ public class WhereCustomSegment {
 	}
 	public void setParameter(Map<String, Object> parameter) {
 		this.parameter = parameter;
+	}
+	public WhereCustomSegment sql(String sql, Object[] params) {
+		  StringBuffer segmentSql = new StringBuffer(getOpreatioalType() + " ");
+		  
+		  int index = 0;
+		  for (int i = 0; i < sql.length(); i ++) {
+			   if (Character.isAlphabetic(sql.charAt(i))) {
+				   StringBuffer sb = new StringBuffer();
+				   do {
+					   sb.append(sql.charAt(i));
+				   } while(Character.isAlphabetic(sql.charAt(++ i)));
+				   i --;
+				   if (tableEntity.getAllEntityColumns().contains(sb.toString())) {
+					   segmentSql.append(tableEntity.getNickName())
+					   	.append(".")
+					   	.append(tableEntity.getAllTableColumns().get(tableEntity.getAllEntityColumns().indexOf(sb.toString())));
+				   } else {
+					   segmentSql.append(sb.toString());
+				   }
+			   } else if (sql.charAt(i) == '?') {
+				   String key = getKey("Sql");
+				   segmentSql.append("#{parameter.")
+				   	.append(key)
+				   	.append("}");
+				   if (index >= params.length) {
+					   new Exception("few params").printStackTrace();
+				   }
+				   this.parameter.put(key, params[index ++]);
+			   } else {
+				   segmentSql.append(sql.charAt(i));
+			   }
+		  }
+		  this.segmentSql.add(segmentSql.toString()); 
+		  return this;
 	}
 }

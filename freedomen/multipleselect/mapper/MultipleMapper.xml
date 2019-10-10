@@ -8,10 +8,11 @@
        		<foreach collection="join" index="index" item="item" separator=" " >
        			left join ${item}
        		</foreach>
-       </if>
+       </if> 
        <where>
        		${sqlSegment}
        </where>
+      
     </select>
     
     <select id="mulSelect" parameterType="com.freedomen.multipleselect.MultipleSelect" resultType="map">
@@ -26,6 +27,9 @@
        </where>
        <if test="orderBy!=null and orderBy!=''">
        		order by ${orderBy}
+       </if>
+       <if test="groupBy!=null and groupBy!=''">
+       		group by ${groupBy}
        </if>
        <if test="start != null and end != null">
            limit #{start}, #{end}
