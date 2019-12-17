@@ -1,11 +1,17 @@
 # multipleselect
 java mybatis 实现简单多表通用查询
 
+## 中后台 vue ElementUI 組件版
+
+(文檔地址)[http://115.159.65.195:8080/vefdoc/#/start]
+
+歡迎交流
+
 ### 简介
 
- 	实现项目中比较基本的多表通用查询。
+	实现项目中比较基本的多表通用查询。
 
-​	 实现简单的实体类操作多表,  首先你的项目是使用了mybatis-plus 才可以使用。
+​	实现简单的实体类操作多表,  首先你的项目是使用了mybatis-plus 才可以使用。
 
 ​	 不做任何更改，也不会对项目产生任何影响，与手写XML 功能一样。
 
@@ -40,9 +46,9 @@ java mybatis 实现简单多表通用查询
   private Integer addressId
   private Integer userId
   //那么自动条件为  user.user_id = address.user_id
-//或者是
+  //也可以是
   @TableId(value="id")
-private Integer userId
+  private Integer userId
   // address 表
   @TableId(value="id")
   private Integer addressId
@@ -51,8 +57,8 @@ private Integer userId
   //目前只有left join
   //那么自动条件为  user.id = address.test_user_id
   //如果符合这设计条件，你就往里扔就完事了
-  ```
   
+  ```
 
 ### 使用说明
 
