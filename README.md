@@ -5,6 +5,10 @@ java mybatis 实现简单多表通用查询
 
 (文檔地址)[http://115.159.65.195:8080/vefdoc/#/start]
 
+####　mybatis-puls 图形化数据库生成XML，PO，Service，Controller工具
+
+(GITHUB)[https://github.com/yangaijun/generate-mybatis-plus]
+
 歡迎交流
 
 ### 简介
