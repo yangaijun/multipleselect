@@ -1,15 +1,9 @@
 # multipleselect
 java mybatis 实现简单多表通用查询
 
-## 中后台 vue ElementUI 組件版
+### 中后台低代码开发平台
 
-(文檔地址)[http://115.159.65.195:8080/vefdoc/#/start]
-
-####　mybatis-puls 图形化数据库生成XML，PO，Service，Controller工具
-
-(GITHUB)[https://github.com/yangaijun/generate-mybatis-plus]
-
-歡迎交流
+[文档地址，歡迎交流](https://light2f.com)
 
 ### 简介
 
