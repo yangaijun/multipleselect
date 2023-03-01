@@ -1,31 +1,27 @@
+
+# 广告：中后台低代码开发平台
+
+[文档地址，歡迎交流](https://light2f.com)
 # multipleselect
 java mybatis 实现简单多表通用查询
 
-### 中后台低代码开发平台
-
-[文档地址，歡迎交流](https://light2f.com)
-
 ### 简介
 
-	实现项目中比较基本的多表通用查询。
+实现项目中比较基本的多表通用查询。
 
-​	实现简单的实体类操作多表,  首先你的项目是使用了mybatis-plus 才可以使用。
+​实现简单的实体类操作多表,  首先你的项目是使用了mybatis-plus 才可以使用。
 
-​	 不做任何更改，也不会对项目产生任何影响，与手写XML 功能一样。
+不做任何更改，也不会对项目产生任何影响，与手写XML 功能一样。
 
-​     通过解析实体，调用通用的XML来实现多表查询， 提供一个设计多表查询的思路，复杂的Sql嵌套等目前并不支持。
+通过解析实体，调用通用的XML来实现多表查询， 提供一个设计多表查询的思路，复杂的Sql嵌套等目前并不支持。
 
 #### 目前支持：
 
-​	 left join方式，能关联的两张表的实体中关联字段名称必须一样，数据库字段可以不一样可以通@TableField注解来解决，right join 换个位置喽 其它方式还没有）
+left join方式，能关联的两张表的实体中关联字段名称必须一样，数据库字段可以不一样可以通@TableField注解来解决，right join 换个位置喽 其它方式还没有）
 
-​    where 基本查询条件, sql函数 等
+where 基本查询条件, sql函数等
 
-​	分页 查询
-
-​	order 排序
-
-​	简易 group by, 还没有Having哦
+分页查询，order排序，group by
 
 可以用来三两句搞定一些简单关联查询业务，解决不需要写的代码
 
@@ -33,7 +29,7 @@ java mybatis 实现简单多表通用查询
 
 * 如何关联表？
 
-  ​		找第一张表注解为 TableId （mybatis-plus 注解）的属性名， 到每二张表找同样的属性名， 如果没找到，反过来找，如果还没找到，挨个属性找。以此类推，实现关联的前提条件是 主从表的实体关联列名必须是一样的
+  找第一张表注解为 TableId （mybatis-plus 注解）的属性名， 到每二张表找同样的属性名， 如果没找到，反过来找，如果还没找到，挨个属性找。以此类推，实现关联的前提条件是 主从表的实体关联列名必须是一样的
 
   ```java
   // user 表
@@ -57,14 +53,10 @@ java mybatis 实现简单多表通用查询
   //如果符合这设计条件，你就往里扔就完事了
   
   ```
-
 ### 使用说明
-
-   1.将 com.freedomen.multipselect 包放到你的项目中
-
-   2.使  com.freedomen.multipselect.mapper里的xml 要被扫描到，或手动配置  
-
-3. com.freedomen.multipselect.service也要被发现
+   1. 将 com.freedomen.multipselect 包放到你的项目中
+   2. 使  com.freedomen.multipselect.mapper里的xml 要被扫描到，或手动配置  
+   3. com.freedomen.multipselect.service也要被发现
 
 ```java
 //引入service
